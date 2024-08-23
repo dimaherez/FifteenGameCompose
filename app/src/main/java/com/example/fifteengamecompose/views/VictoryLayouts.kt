@@ -43,16 +43,6 @@ fun PortraitVictoryLayout(movesCounter: Int = 0, onClick: () -> Unit = {}) {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.BottomCenter
     ) {
-
-        // To hide control panel
-        Image(
-            painter = painterResource(id = R.drawable.bg),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .height(340.dp)
-        )
-
         Image(
             painter = painterResource(id = R.drawable.wood),
             contentDescription = null,
@@ -108,20 +98,6 @@ fun LandscapeVictoryLayout(movesCounter: Int = 0, onClick: () -> Unit = {}) {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.CenterEnd
     ) {
-
-        // To hide control panel
-        Image(
-            painter = painterResource(id = R.drawable.bg),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .width(400.dp)
-                .fillMaxHeight()
-                .graphicsLayer {
-                    rotationZ = -90f
-                }
-        )
-
         Image(
             painter = painterResource(id = R.drawable.wood),
             contentDescription = null,

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -30,13 +31,11 @@ import com.example.fifteengamecompose.ui.theme.innerShadow
 @Composable
 fun ControlPanelView(movesCounter: Int, onClick: () -> Unit = {}) {
     Column(
-        modifier = Modifier
-            .padding(30.dp)
-            .width(320.dp),
-        verticalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.height(190.dp), // 90 + 90 + 10 for padding
+        verticalArrangement = Arrangement.SpaceEvenly
     ) {
         Box(
-            modifier = Modifier.height(90.dp),
+            modifier = Modifier.height(90.dp).width(320.dp),
             contentAlignment = Alignment.Center
         ) {
             Image(
@@ -68,14 +67,11 @@ fun ControlPanelView(movesCounter: Int, onClick: () -> Unit = {}) {
             )
         }
 
-
         Button(
+            modifier = Modifier.height(90.dp).width(320.dp),
             onClick = onClick,
             contentPadding = PaddingValues(0.dp),
             shape = RoundedCornerShape(10.dp),
-            modifier = Modifier
-                .height(90.dp)
-                .fillMaxWidth()
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Image(
@@ -107,5 +103,6 @@ fun ControlPanelView(movesCounter: Int, onClick: () -> Unit = {}) {
                 )
             }
         }
+
     }
 }
