@@ -23,7 +23,7 @@ var state = INITIAL_STATE.clone()
 interface FifteenEngine {
     fun transitionState(oldState: ByteArray, cell: Byte): ByteArray
     fun isWin(state: ByteArray): Boolean
-    fun getInitialState(): ByteArray
+    fun getInitialGrid(): ByteArray
 
     companion object : FifteenEngine {
         const val EMPTY: Byte = 16
@@ -76,7 +76,7 @@ interface FifteenEngine {
 
         private fun isFeasibleSolution(state: ByteArray): Boolean = countInversions(state) % 2 == 1
 
-        override fun getInitialState(): ByteArray {
+        override fun getInitialGrid(): ByteArray {
 //    state = TEST_STATE
             val res = INITIAL_STATE.clone()
             do {
@@ -91,7 +91,7 @@ interface FifteenEngine {
 fun main() {
     val engine: FifteenEngine = FifteenEngine
     println("Welcome to Fifteen Game!")
-    state = engine.getInitialState()
+    state = engine.getInitialGrid()
     while (!engine.isWin(state)) {
         printBoard(state)
         val cell: Byte = readCell()

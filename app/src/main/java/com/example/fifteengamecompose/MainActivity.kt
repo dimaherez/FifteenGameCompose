@@ -4,19 +4,18 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModel
 import com.example.fifteengamecompose.views.ResponsiveLayout
 
 class MainActivity : ComponentActivity() {
@@ -24,47 +23,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            FifteenGridStateHolder()
+            val viewModel: FifteenViewModel by viewModels()
+            FifteenGame(state = viewModel.state, onAction = viewModel::processIntent)
         }
     }
 }
 
-@Composable
-fun FifteenGridStateHolder(engine: FifteenEngine = FifteenEngine) {
-    var state by rememberSaveable { mutableStateOf(engine.getInitialState()) }
-    var movesCounter by rememberSaveable { mutableIntStateOf(0) }
-
-    val onCellClick: (Byte) -> Unit = { number ->
-        val newState = engine.transitionState(state, number)
-        if (!newState.contentEquals(state)) {
-            state = newState
-            movesCounter += 1
-        }
-    }
-
-    val onReset: () -> Unit = {
-        state = engine.getInitialState()
-        movesCounter = 0
-    }
-
-    FifteenGrid(
-        state = state,
-        isVictory = engine.isWin(state),
-        movesCounter = movesCounter,
-        formatText = FifteenEngine::formatCell,
-        onCellClick = onCellClick,
-        onReset = onReset
-    )
-}
 
 @Composable
-fun FifteenGrid(
-    state: ByteArray = byteArrayOf(),
-    isVictory: Boolean = false,
-    movesCounter: Int = 0,
-    formatText: (Byte) -> String = { it.toString() },
-    onCellClick: (Byte) -> Unit,
-    onReset: () -> Unit,
+fun FifteenGame(
+    state: FifteenState,
+    onAction: (FifteenIntent) -> Unit
 ) {
     Box(
         modifier = with(Modifier) {
@@ -75,23 +44,47 @@ fun FifteenGrid(
             )
         }
     ) {
-        ResponsiveLayout(state, isVictory, movesCounter, formatText, onCellClick, onReset)
+        ResponsiveLayout(state, onAction)
     }
 }
 
+data class FifteenState(
+    val grid: ByteArray = byteArrayOf(),
+    val isVictory: Boolean = false,
+    val movesCounter: Int = 0,
+    val formatText: (Byte) -> String = { if (it.toInt() == 16) " " else it.toString() },
+)
 
-@Preview(showSystemUi = true)
-@Composable
-fun GridPreview() {
-    FifteenGridStateHolder(
-        engine = object : FifteenEngine by FifteenEngine.Companion {
-            override fun getInitialState(): ByteArray = byteArrayOf(
-                1, 2, 3, 4,
-                5, 6, 7, 8,
-                9, 10, 11, 12,
-                13, 14, 16, 15
-            )
+sealed interface FifteenIntent {
+    data class CellClick(val number: Byte) : FifteenIntent
+    data object Reset : FifteenIntent
+}
+
+class FifteenViewModel(private val engine: FifteenEngine = FifteenEngine) : ViewModel() {
+    var state by mutableStateOf(FifteenState())
+
+    init {
+        state = state.copy(grid = engine.getInitialGrid())
+    }
+
+    fun processIntent(intent: FifteenIntent) {
+        state = when (intent) {
+            is FifteenIntent.CellClick -> {
+                with(state) {
+                    val newGrid = engine.transitionState(grid, intent.number)
+                    copy(
+                        grid = newGrid,
+                        movesCounter = if (newGrid.contentEquals(grid)) movesCounter else movesCounter + 1,
+                        isVictory = engine.isWin(newGrid)
+                    )
+                }
+
+            }
+
+            is FifteenIntent.Reset -> {
+                state.copy(grid = engine.getInitialGrid(), isVictory = false, movesCounter = 0)
+            }
         }
-    )
+    }
 }
 

@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
@@ -17,112 +15,107 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import com.example.fifteengamecompose.FifteenEngine.Companion.DIM
+import com.example.fifteengamecompose.FifteenIntent
+import com.example.fifteengamecompose.FifteenState
 
 @Composable
 fun ResponsiveLayout(
-    state: ByteArray,
-    isVictory: Boolean,
-    movesCounter: Int,
-    formatText: (Byte) -> String,
-    onCellClick: (Byte) -> Unit,
-    onReset: () -> Unit
+    state: FifteenState,
+    onAction: (FifteenIntent) -> Unit
 ) {
     val configuration = LocalConfiguration.current
 
     when (configuration.orientation) {
         Configuration.ORIENTATION_LANDSCAPE -> {
-            LandscapeFifteenGrid(state, movesCounter, isVictory, formatText, onCellClick, onReset)
+            LandscapeFifteenGrid(state, onAction)
         }
-
         else -> {
-            PortraitFifteenGrid(state, movesCounter,isVictory, formatText, onCellClick, onReset)
+            PortraitFifteenGrid(state, onAction)
         }
     }
 }
 
 @Composable
 fun PortraitFifteenGrid(
-    state: ByteArray,
-    movesCounter: Int,
-    isVictory: Boolean,
-    formatText: (Byte) -> String,
-    onCellClick: (Byte) -> Unit,
-    onReset: () -> Unit
+    state: FifteenState,
+    onAction: (FifteenIntent) -> Unit
 ) {
-    fun ix(iRow: Int, iCol: Int) = iRow * DIM + iCol
 
-    Column(modifier = Modifier.fillMaxSize(),
+    Column(
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceEvenly,
-        horizontalAlignment = Alignment.CenterHorizontally) {
-        Column(
-            modifier = Modifier.wrapContentSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            for (iRow in 0 until DIM) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
-                ) {
-                    for (iCol in 0 until DIM) {
-                        val id = ix(iRow, iCol)
-                        Cell(formatText(state[id]), onClick = { onCellClick(state[id]) })
-                    }
-                }
-            }
-        }
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
 
-        if (!isVictory) {
-            ControlPanelView(movesCounter = movesCounter, onReset)
+        Grid(state = state, onAction)
+
+        if (!state.isVictory) {
+            ControlPanelView(movesCounter = state.movesCounter) { onAction(FifteenIntent.Reset) }
         } else {
             Spacer(modifier = Modifier.size(250.dp))
         }
 
     }
 
-    if (isVictory) {
-        PortraitVictoryLayout(movesCounter = movesCounter, onReset)
+    if (state.isVictory) {
+        PortraitVictoryLayout(movesCounter = state.movesCounter) { onAction(FifteenIntent.Reset) }
     }
 }
 
 @Composable
 fun LandscapeFifteenGrid(
-    state: ByteArray,
-    movesCounter: Int,
-    isVictory: Boolean,
-    formatText: (Byte) -> String,
-    onCellClick: (Byte) -> Unit,
-    onReset: () -> Unit
+    state: FifteenState,
+    onAction: (FifteenIntent) -> Unit
 ) {
-    fun ix(iRow: Int, iCol: Int) = iRow * DIM + iCol
-
-    Row(modifier = Modifier.fillMaxSize(),
+    Row(
+        modifier = Modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically) {
-        Column(
-            modifier = Modifier.wrapContentSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            for (iRow in 0 until DIM) {
-                Row(
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    for (iCol in 0 until DIM) {
-                        val id = ix(iRow, iCol)
-                        Cell(formatText(state[id]), onClick = { onCellClick(state[id]) })
-                    }
-                }
-            }
-        }
+        verticalAlignment = Alignment.CenterVertically
+    ) {
 
-        if (!isVictory) {
-            ControlPanelView(movesCounter = movesCounter, onReset)
+        Grid(state = state, onAction)
+
+        if (!state.isVictory) {
+            ControlPanelView(movesCounter = state.movesCounter) { onAction(FifteenIntent.Reset) }
         } else {
             Spacer(modifier = Modifier.size(250.dp))
         }
     }
 
-    if (isVictory) {
-        LandscapeVictoryLayout(movesCounter = movesCounter, onReset)
+    if (state.isVictory) {
+        LandscapeVictoryLayout(movesCounter = state.movesCounter) { onAction(FifteenIntent.Reset) }
+    }
+}
+
+
+@Composable
+fun Grid(
+    state: FifteenState,
+    onAction: (FifteenIntent) -> Unit
+) {
+    fun ix(iRow: Int, iCol: Int) = iRow * DIM + iCol
+
+    Column(
+        modifier = Modifier.wrapContentSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        for (iRow in 0 until DIM) {
+            Row(
+                horizontalArrangement = Arrangement.Center
+            ) {
+                for (iCol in 0 until DIM) {
+                    val id = ix(iRow, iCol)
+                    Cell(state.formatText(state.grid[id]), onClick = {
+                        onAction(
+                            FifteenIntent.CellClick(
+                                state.grid[id]
+                            )
+                        )
+                    }
+                    )
+                }
+            }
+        }
     }
 }
