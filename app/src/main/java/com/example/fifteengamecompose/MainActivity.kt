@@ -47,7 +47,7 @@ fun FifteenGame(
 }
 
 data class FifteenState(
-    val grid: MutableList<Int>,
+    val gameBoard: GameBoard,
     val isVictory: Boolean = false,
     val movesCounter: Int = 0
 )
@@ -58,24 +58,24 @@ sealed interface FifteenIntent {
 }
 
 class FifteenViewModel(private val engine: FifteenEngine = FifteenEngine) : ViewModel() {
-    var state by mutableStateOf(FifteenState(grid = engine.getInitialGrid()))
+    var state by mutableStateOf(FifteenState(gameBoard = engine.getInitialGameBoard()))
 
     fun processIntent(intent: FifteenIntent) {
         state = when (intent) {
             is FifteenIntent.CellClick -> {
                 with(state) {
-                    val oldGrid = grid.toMutableList()
-                    engine.transitionState(grid, intent.number)
+                    val oldGameBoard = gameBoard.toMutableList()
+                    engine.transitionState(gameBoard, intent.number)
                     copy(
-                        movesCounter = if (oldGrid == grid) movesCounter else movesCounter + 1,
-                        isVictory = engine.isWin(grid)
+                        movesCounter = if (oldGameBoard == gameBoard) movesCounter else movesCounter + 1,
+                        isVictory = engine.isWin(gameBoard)
                     )
                 }
 
             }
 
             is FifteenIntent.Reset -> {
-                state.copy(grid = engine.getInitialGrid(), isVictory = false, movesCounter = 0)
+                state.copy(gameBoard = engine.getInitialGameBoard(), isVictory = false, movesCounter = 0)
             }
         }
     }

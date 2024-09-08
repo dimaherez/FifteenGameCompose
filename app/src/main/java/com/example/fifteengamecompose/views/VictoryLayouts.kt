@@ -31,13 +31,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.fifteengamecompose.FifteenIntent
 import com.example.fifteengamecompose.R
 import com.example.fifteengamecompose.ui.theme.Brown
 import com.example.fifteengamecompose.ui.theme.RedShadow
 import com.example.fifteengamecompose.ui.theme.innerShadow
 
 @Composable
-fun PortraitVictoryLayout(movesCounter: Int = 0, onClick: () -> Unit = {}) {
+fun PortraitVictoryLayout(movesCounter: Int = 0, onAction: (FifteenIntent) -> Unit = {}) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.BottomCenter
@@ -86,13 +87,13 @@ fun PortraitVictoryLayout(movesCounter: Int = 0, onClick: () -> Unit = {}) {
             verticalArrangement = Arrangement.Bottom,
 
             ) {
-            VictoryTextAndButton(movesCounter = movesCounter, onClick)
+            VictoryTextAndButton(movesCounter = movesCounter, onAction = onAction)
         }
     }
 }
 
 @Composable
-fun LandscapeVictoryLayout(movesCounter: Int = 0, onClick: () -> Unit = {}) {
+fun LandscapeVictoryLayout(movesCounter: Int = 0, onAction: (FifteenIntent) -> Unit = {}) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.CenterEnd
@@ -141,14 +142,14 @@ fun LandscapeVictoryLayout(movesCounter: Int = 0, onClick: () -> Unit = {}) {
             verticalArrangement = Arrangement.Bottom,
 
             ) {
-            VictoryTextAndButton(movesCounter = movesCounter, onClick)
+            VictoryTextAndButton(movesCounter = movesCounter, onAction = onAction)
         }
 
     }
 }
 
 @Composable
-fun VictoryTextAndButton(movesCounter: Int, onClick: () -> Unit) {
+fun VictoryTextAndButton(movesCounter: Int, onAction: (FifteenIntent) -> Unit) {
     Text(
         modifier = Modifier.padding(bottom = 20.dp),
         text = "YOU WON!",
@@ -164,7 +165,7 @@ fun VictoryTextAndButton(movesCounter: Int, onClick: () -> Unit) {
         fontWeight = FontWeight.SemiBold
     )
     Button(
-        onClick = onClick,
+        onClick = { onAction(FifteenIntent.Reset) },
         contentPadding = PaddingValues(0.dp),
         modifier = Modifier
             .height(90.dp)

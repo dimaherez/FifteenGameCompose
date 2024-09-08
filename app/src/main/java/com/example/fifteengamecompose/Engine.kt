@@ -3,12 +3,14 @@ package com.example.fifteengamecompose
 import kotlin.math.abs
 
 val INITIAL_STATE = MutableList(16) { it + 1 }
-val TEST_STATE = mutableListOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 15)
+// val TEST_STATE = mutableListOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 15)
+
+typealias GameBoard = MutableList<Int>
 
 interface FifteenEngine {
-    fun transitionState(oldGrid: MutableList<Int>, cell: Int)
-    fun isWin(grid: MutableList<Int>): Boolean
-    fun getInitialGrid(): MutableList<Int>
+    fun transitionState(oldGameBoard: GameBoard, cell: Int)
+    fun isWin(gameBoard: GameBoard): Boolean
+    fun getInitialGameBoard(): GameBoard
 
     companion object : FifteenEngine {
         private const val EMPTY: Int = 16
@@ -16,17 +18,17 @@ interface FifteenEngine {
         private fun row(ix: Int) = ix / DIM
         private fun col(ix: Int) = ix % DIM
 
-        override fun transitionState(oldGrid: MutableList<Int>, cell: Int) {
-            val ixCell = oldGrid.indexOf(cell)
-            val ixEmpty = oldGrid.indexOf(EMPTY)
+        override fun transitionState(oldGameBoard: GameBoard, cell: Int) {
+            val ixCell = oldGameBoard.indexOf(cell)
+            val ixEmpty = oldGameBoard.indexOf(EMPTY)
 
             if (areAdjacent(ixCell, ixEmpty)) {
-                swapAdjacentCells(oldGrid, ixCell, ixEmpty)
+                swapAdjacentCells(oldGameBoard, ixCell, ixEmpty)
             }
         }
 
-        private fun swapAdjacentCells(grid: MutableList<Int>, ix1: Int, ix2: Int) {
-            if (ix1 != ix2) grid[ix1] = grid[ix2].also { grid[ix2] = grid[ix1] }
+        private fun swapAdjacentCells(gameBoard: GameBoard, ix1: Int, ix2: Int) {
+            if (ix1 != ix2) gameBoard[ix1] = gameBoard[ix2].also { gameBoard[ix2] = gameBoard[ix1] }
         }
 
         private fun areAdjacent(ix1: Int, ix2: Int): Boolean {
@@ -38,24 +40,24 @@ interface FifteenEngine {
                     col1 == col2 && abs(row1 - row2) == 1)
         }
 
-        override fun isWin(grid: MutableList<Int>): Boolean =
-            grid == INITIAL_STATE
+        override fun isWin(gameBoard: GameBoard): Boolean =
+            gameBoard == INITIAL_STATE
 
-        private fun countInversions(grid: MutableList<Int>): Int {
-            val rowOfEmptyCell = row(grid.indexOf(EMPTY))
+        private fun countInversions(gameBoard: GameBoard): Int {
+            val rowOfEmptyCell = row(gameBoard.indexOf(EMPTY))
             var inversions = rowOfEmptyCell
-            repeat(grid.size) {
-                if (grid[it] != EMPTY)
-                    for (j in it + 1..<grid.size) {
-                        if (grid[j] != EMPTY && grid[it] > grid[j]) inversions++
+            repeat(gameBoard.size) {
+                if (gameBoard[it] != EMPTY)
+                    for (j in it + 1..<gameBoard.size) {
+                        if (gameBoard[j] != EMPTY && gameBoard[it] > gameBoard[j]) inversions++
                     }
             }
             return inversions
         }
 
-        private fun isFeasibleSolution(grid: MutableList<Int>): Boolean = countInversions(grid) % 2 == 1
+        private fun isFeasibleSolution(gameBoard: GameBoard): Boolean = countInversions(gameBoard) % 2 == 1
 
-        override fun getInitialGrid(): MutableList<Int> {
+        override fun getInitialGameBoard(): GameBoard {
             val res = INITIAL_STATE.toMutableList()
             do {
                 res.shuffle()

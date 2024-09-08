@@ -20,19 +20,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.fifteengamecompose.FifteenIntent
 import com.example.fifteengamecompose.R
 import com.example.fifteengamecompose.ui.theme.Brown
 import com.example.fifteengamecompose.ui.theme.RedShadow
 import com.example.fifteengamecompose.ui.theme.innerShadow
 
 @Composable
-fun ControlPanelView(movesCounter: Int, onClick: () -> Unit = {}) {
+fun ControlPanelView(movesCounter: Int, onAction: (FifteenIntent) -> Unit) {
     Column(
         modifier = Modifier.height(190.dp), // 90 + 90 + 10 for padding
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
         Box(
-            modifier = Modifier.height(90.dp).width(320.dp),
+            modifier = Modifier
+                .height(90.dp)
+                .width(320.dp),
             contentAlignment = Alignment.Center
         ) {
             Image(
@@ -65,8 +68,10 @@ fun ControlPanelView(movesCounter: Int, onClick: () -> Unit = {}) {
         }
 
         Button(
-            modifier = Modifier.height(90.dp).width(320.dp),
-            onClick = onClick,
+            modifier = Modifier
+                .height(90.dp)
+                .width(320.dp),
+            onClick = { onAction(FifteenIntent.Reset) },
             contentPadding = PaddingValues(0.dp),
             shape = RoundedCornerShape(10.dp),
         ) {

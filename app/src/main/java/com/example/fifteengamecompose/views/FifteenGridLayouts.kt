@@ -49,7 +49,7 @@ fun PortraitFifteenGrid(
         Grid(state = state, onAction)
 
         if (!state.isVictory) {
-            ControlPanelView(movesCounter = state.movesCounter) { onAction(FifteenIntent.Reset) }
+            ControlPanelView(movesCounter = state.movesCounter, onAction = onAction)
         } else {
             Spacer(modifier = Modifier.size(250.dp))
         }
@@ -57,7 +57,7 @@ fun PortraitFifteenGrid(
     }
 
     if (state.isVictory) {
-        PortraitVictoryLayout(movesCounter = state.movesCounter) { onAction(FifteenIntent.Reset) }
+        PortraitVictoryLayout(movesCounter = state.movesCounter, onAction = onAction)
     }
 }
 
@@ -75,14 +75,14 @@ fun LandscapeFifteenGrid(
         Grid(state = state, onAction)
 
         if (!state.isVictory) {
-            ControlPanelView(movesCounter = state.movesCounter) { onAction(FifteenIntent.Reset) }
+            ControlPanelView(movesCounter = state.movesCounter, onAction = onAction)
         } else {
             Spacer(modifier = Modifier.size(250.dp))
         }
     }
 
     if (state.isVictory) {
-        LandscapeVictoryLayout(movesCounter = state.movesCounter) { onAction(FifteenIntent.Reset) }
+        LandscapeVictoryLayout(movesCounter = state.movesCounter, onAction = onAction)
     }
 }
 
@@ -105,10 +105,10 @@ fun Grid(
             ) {
                 for (iCol in 0 until DIM) {
                     val id = ix(iRow, iCol)
-                    Cell(state.grid[id], onClick = {
+                    Cell(state.gameBoard[id], onClick = {
                         onAction(
                             FifteenIntent.CellClick(
-                                state.grid[id]
+                                state.gameBoard[id]
                             )
                         )
                     }
