@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import com.example.fifteengamecompose.FifteenEngine.Companion.DIM
 import com.example.fifteengamecompose.FifteenIntent
 import com.example.fifteengamecompose.FifteenState
-import com.example.fifteengamecompose.formatText
 
 @Composable
 fun ResponsiveLayout(
@@ -106,7 +105,7 @@ fun Grid(
             ) {
                 for (iCol in 0 until DIM) {
                     val id = ix(iRow, iCol)
-                    Cell(state.grid[id].toInt(), onClick = {
+                    Cell(state.grid[id], onClick = {
                         onAction(
                             FifteenIntent.CellClick(
                                 state.grid[id]

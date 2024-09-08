@@ -2,35 +2,31 @@ package com.example.fifteengamecompose
 
 import kotlin.math.abs
 
-val INITIAL_STATE = ByteArray(16) { (it + 1).toByte() }
-val TEST_STATE = byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 15)
+val INITIAL_STATE = MutableList(16) { it + 1 }
+val TEST_STATE = mutableListOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 15)
 
 interface FifteenEngine {
-    fun transitionState(oldState: ByteArray, cell: Byte): ByteArray
-    fun isWin(state: ByteArray): Boolean
-    fun getInitialGrid(): ByteArray
+    fun transitionState(oldGrid: MutableList<Int>, cell: Int)
+    fun isWin(grid: MutableList<Int>): Boolean
+    fun getInitialGrid(): MutableList<Int>
 
     companion object : FifteenEngine {
-        private const val EMPTY: Byte = 16
+        private const val EMPTY: Int = 16
         const val DIM = 4
         private fun row(ix: Int) = ix / DIM
         private fun col(ix: Int) = ix % DIM
 
-        override fun transitionState(oldState: ByteArray, cell: Byte): ByteArray {
-            val ixCell = oldState.indexOf(cell)
-            val ixEmpty = oldState.indexOf(EMPTY)
+        override fun transitionState(oldGrid: MutableList<Int>, cell: Int) {
+            val ixCell = oldGrid.indexOf(cell)
+            val ixEmpty = oldGrid.indexOf(EMPTY)
 
-            return if (areAdjacent(ixCell, ixEmpty)) {
-                withSwapped(oldState, ixCell, ixEmpty)
+            if (areAdjacent(ixCell, ixEmpty)) {
+                swapAdjacentCells(oldGrid, ixCell, ixEmpty)
             }
-            else oldState
         }
 
-        private fun withSwapped(arr: ByteArray, ix1: Int, ix2: Int): ByteArray {
-            if (ix1 == ix2) return arr
-            val res = arr.clone()
-            res[ix1] = res[ix2].also { res[ix2] = res[ix1] }
-            return res
+        private fun swapAdjacentCells(grid: MutableList<Int>, ix1: Int, ix2: Int) {
+            if (ix1 != ix2) grid[ix1] = grid[ix2].also { grid[ix2] = grid[ix1] }
         }
 
         private fun areAdjacent(ix1: Int, ix2: Int): Boolean {
@@ -42,25 +38,25 @@ interface FifteenEngine {
                     col1 == col2 && abs(row1 - row2) == 1)
         }
 
-        override fun isWin(state: ByteArray): Boolean =
-            state.contentEquals(INITIAL_STATE)
+        override fun isWin(grid: MutableList<Int>): Boolean =
+            grid == INITIAL_STATE
 
-        private fun countInversions(state: ByteArray): Int {
-            val rowOfEmptyCell = row(state.indexOf(EMPTY))
+        private fun countInversions(grid: MutableList<Int>): Int {
+            val rowOfEmptyCell = row(grid.indexOf(EMPTY))
             var inversions = rowOfEmptyCell
-            repeat(state.size) {
-                if (state[it] != EMPTY)
-                    for (j in it + 1..<state.size) {
-                        if (state[j] != EMPTY && state[it] > state[j]) inversions++
+            repeat(grid.size) {
+                if (grid[it] != EMPTY)
+                    for (j in it + 1..<grid.size) {
+                        if (grid[j] != EMPTY && grid[it] > grid[j]) inversions++
                     }
             }
             return inversions
         }
 
-        private fun isFeasibleSolution(state: ByteArray): Boolean = countInversions(state) % 2 == 1
+        private fun isFeasibleSolution(grid: MutableList<Int>): Boolean = countInversions(grid) % 2 == 1
 
-        override fun getInitialGrid(): ByteArray {
-            val res = INITIAL_STATE.clone()
+        override fun getInitialGrid(): MutableList<Int> {
+            val res = INITIAL_STATE.toMutableList()
             do {
                 res.shuffle()
             } while (!isFeasibleSolution(res))

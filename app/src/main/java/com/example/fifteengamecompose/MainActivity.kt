@@ -47,13 +47,13 @@ fun FifteenGame(
 }
 
 data class FifteenState(
-    val grid: ByteArray,
+    val grid: MutableList<Int>,
     val isVictory: Boolean = false,
     val movesCounter: Int = 0
 )
 
 sealed interface FifteenIntent {
-    data class CellClick(val number: Byte) : FifteenIntent
+    data class CellClick(val number: Int) : FifteenIntent
     data object Reset : FifteenIntent
 }
 
@@ -64,11 +64,11 @@ class FifteenViewModel(private val engine: FifteenEngine = FifteenEngine) : View
         state = when (intent) {
             is FifteenIntent.CellClick -> {
                 with(state) {
-                    val newGrid = engine.transitionState(grid, intent.number)
+                    val oldGrid = grid.toMutableList()
+                    engine.transitionState(grid, intent.number)
                     copy(
-                        grid = newGrid,
-                        movesCounter = if (newGrid.contentEquals(grid)) movesCounter else movesCounter + 1,
-                        isVictory = engine.isWin(newGrid)
+                        movesCounter = if (oldGrid == grid) movesCounter else movesCounter + 1,
+                        isVictory = engine.isWin(grid)
                     )
                 }
 
