@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -16,6 +15,7 @@ import androidx.compose.ui.draw.paint
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.fifteengamecompose.views.ResponsiveLayout
 
 class MainActivity : ComponentActivity() {
@@ -23,8 +23,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val viewModel: FifteenViewModel by viewModels()
-            FifteenGame(state = viewModel.state, onAction = viewModel::processIntent)
+            FifteenGame()
         }
     }
 }
@@ -32,8 +31,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun FifteenGame(
-    state: FifteenState,
-    onAction: (FifteenIntent) -> Unit
+    fifteenViewModel: FifteenViewModel = viewModel<FifteenViewModel>()
 ) {
     Box(
         modifier = with(Modifier) {
@@ -44,16 +42,17 @@ fun FifteenGame(
             )
         }
     ) {
-        ResponsiveLayout(state, onAction)
+        ResponsiveLayout(state = fifteenViewModel.state, onAction = fifteenViewModel::processIntent)
     }
 }
 
 data class FifteenState(
-    val grid: ByteArray = byteArrayOf(),
+    val grid: ByteArray,
     val isVictory: Boolean = false,
-    val movesCounter: Int = 0,
-    val formatText: (Byte) -> String = { if (it.toInt() == 16) " " else it.toString() },
-)
+    val movesCounter: Int = 0
+) {
+    fun formatText(number: Byte) = if (number.toInt() == 16) " " else number.toString()
+}
 
 sealed interface FifteenIntent {
     data class CellClick(val number: Byte) : FifteenIntent
@@ -61,11 +60,7 @@ sealed interface FifteenIntent {
 }
 
 class FifteenViewModel(private val engine: FifteenEngine = FifteenEngine) : ViewModel() {
-    var state by mutableStateOf(FifteenState())
-
-    init {
-        state = state.copy(grid = engine.getInitialGrid())
-    }
+    var state by mutableStateOf(FifteenState(grid = engine.getInitialGrid()))
 
     fun processIntent(intent: FifteenIntent) {
         state = when (intent) {
