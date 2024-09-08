@@ -1,24 +1,9 @@
 package com.example.fifteengamecompose
 
-import com.example.fifteengamecompose.FifteenEngine.Companion.DIM
-import com.example.fifteengamecompose.FifteenEngine.Companion.EMPTY
-import com.example.fifteengamecompose.FifteenEngine.Companion.ix
 import kotlin.math.abs
-
-// MVC - Model View Controller
-
-// Controller - dialog with user
-// View - print board
-// Model - 1) state (data) 2) logic (service)
-
 
 val INITIAL_STATE = ByteArray(16) { (it + 1).toByte() }
 val TEST_STATE = byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 15)
-
-// MODEL: STATE
-var state = INITIAL_STATE.clone()
-
-// MODEL: ENGINE
 
 interface FifteenEngine {
     fun transitionState(oldState: ByteArray, cell: Byte): ByteArray
@@ -26,12 +11,10 @@ interface FifteenEngine {
     fun getInitialGrid(): ByteArray
 
     companion object : FifteenEngine {
-        const val EMPTY: Byte = 16
+        private const val EMPTY: Byte = 16
         const val DIM = 4
         private fun row(ix: Int) = ix / DIM
         private fun col(ix: Int) = ix % DIM
-        fun ix(row: Int, col: Int) = row * DIM + col
-        fun formatCell(cell: Byte) = "%s".format(if (cell == EMPTY) " " else cell)
 
         override fun transitionState(oldState: ByteArray, cell: Byte): ByteArray {
             val ixCell = oldState.indexOf(cell)
@@ -77,7 +60,6 @@ interface FifteenEngine {
         private fun isFeasibleSolution(state: ByteArray): Boolean = countInversions(state) % 2 == 1
 
         override fun getInitialGrid(): ByteArray {
-//    state = TEST_STATE
             val res = INITIAL_STATE.clone()
             do {
                 res.shuffle()
@@ -86,47 +68,3 @@ interface FifteenEngine {
         }
     }
 }
-
-// CONTROLLER
-fun main() {
-    val engine: FifteenEngine = FifteenEngine
-    println("Welcome to Fifteen Game!")
-    state = engine.getInitialGrid()
-    while (!engine.isWin(state)) {
-        printBoard(state)
-        val cell: Byte = readCell()
-        state = engine.transitionState(state, cell)
-    }
-    printBoard(state)
-    println("You won!")
-}
-
-fun readCell(
-    println: (String) -> Unit = ::println,
-    readln: () -> String = ::readln
-): Byte {
-    while (true) {
-        println("Enter cell to move (1..15):")
-        val res = readln().toIntOrNull()
-        if (res in 1..15) return res!!.toByte()
-    }
-}
-
-// VIEW
-fun printBoard(
-    state: ByteArray,
-    printer: (String) -> Unit = ::print
-) {
-    printer("-".repeat(18))
-    printer("\n")
-    for (iRow in 0..<DIM) {
-        printer("|")
-        for (iCol in 0..<DIM) {
-            printer(formatCell(state[ix(iRow, iCol)]))
-        }
-        printer("|\n")
-    }
-    printer("------------------")
-}
-
-fun formatCell(cell: Byte) = "%3s ".format(if (cell == EMPTY) " " else cell)

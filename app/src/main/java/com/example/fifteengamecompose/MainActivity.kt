@@ -50,9 +50,7 @@ data class FifteenState(
     val grid: ByteArray,
     val isVictory: Boolean = false,
     val movesCounter: Int = 0
-) {
-    fun formatText(number: Byte) = if (number.toInt() == 16) " " else number.toString()
-}
+)
 
 sealed interface FifteenIntent {
     data class CellClick(val number: Byte) : FifteenIntent

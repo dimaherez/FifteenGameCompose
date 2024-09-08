@@ -24,12 +24,12 @@ import com.example.fifteengamecompose.ui.theme.RedShadow
 import com.example.fifteengamecompose.ui.theme.innerShadow
 
 @Composable
-fun Cell(number: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun Cell(number: Int, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Button(
         onClick = onClick,
         contentPadding = PaddingValues(0.dp),
         modifier = Modifier
-            .alpha(if (number == " ") 0f else 1f)
+            .alpha(if (number == 16) 0f else 1f)
             .size(90.dp)
             .padding(3.dp)
             .shadow(10.dp)
@@ -59,7 +59,7 @@ fun Cell(number: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
                     )
             )
             Text(
-                number,
+                number.toString(),
                 color = Brown,
                 fontSize = 50.sp,
                 fontWeight = FontWeight.Black,
