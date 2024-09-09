@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 
 data class FifteenState(
-    val gameBoard: GameBoard,
+    val gameBoard: List<Int>,
     val isVictory: Boolean = false,
     val movesCounter: Int = 0
 )
@@ -23,11 +23,11 @@ class FifteenViewModel(private val engine: FifteenEngine = FifteenEngine) : View
         state = when (intent) {
             is FifteenIntent.CellClick -> {
                 with(state) {
-                    val oldGameBoard = gameBoard.toMutableList()
-                    engine.transitionState(gameBoard, intent.number)
+                    val newGameBoard = engine.transitionState(gameBoard, intent.number)
                     copy(
-                        movesCounter = if (oldGameBoard == gameBoard) movesCounter else movesCounter + 1,
-                        isVictory = engine.isWin(gameBoard)
+                        gameBoard = newGameBoard,
+                        movesCounter = if (newGameBoard == gameBoard) movesCounter else movesCounter + 1,
+                        isVictory = engine.isWin(newGameBoard)
                     )
                 }
 
